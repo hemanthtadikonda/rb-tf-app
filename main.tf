@@ -28,7 +28,7 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_lb_target_group" "main" {
-  name     = "${local.name_prefix}-sg"
+  name     = "${local.name_prefix}-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -44,9 +44,9 @@ resource "aws_lb_target_group" "public" {
 }
 
 resource "aws_lb_target_group_attachment" "public" {
-  count = var.component == "frontend" ? 1 : 0
+  count            = var.component == "frontend" ? length(tolist(data.dns_a_record_set.private_lb_add.addrs)) : 0
   target_group_arn = aws_lb_target_group.public[0].arn
-  target_id        = data.dns_a_record_set.private_lb_add.addrs
+  target_id        = element(tolist(data.dns_a_record_set.private_lb_add.addrs), count.index )
   port             = 80
   availability_zone = "all"
 }
