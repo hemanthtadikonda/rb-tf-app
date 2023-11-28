@@ -46,8 +46,9 @@ resource "aws_lb_target_group" "public" {
 resource "aws_lb_target_group_attachment" "public" {
   count = var.component == "frontend" ? 1 : 0
   target_group_arn = aws_lb_target_group.public[0].arn
-  target_id        = data
+  target_id        = data.dns_a_record_set.private_lb_add.addrs
   port             = 80
+  availability_zone = "all"
 }
 
 resource "aws_route53_record" "main" {
@@ -55,16 +56,9 @@ resource "aws_route53_record" "main" {
   name    = "${var.component}-${var.env}"
   type    = "CNAME"
   ttl     = 30
-  records = [var.private_alb_name]
+  records = [var.component == "frontend" ? var.public_alb_name : var.private_alb_name]
 }
-resource "aws_route53_record" "public" {
-  count = var.component == "frontend" ? 1 : 0
-  zone_id = var.zone_id
-  name    = "${var.component}-${var.env}"
-  type    = "CNAME"
-  ttl     = 300
-  records = [var.public_alb_name]
-}
+
 
 resource "aws_lb_listener_rule" "main" {
   listener_arn = var.private_alb_listener
@@ -89,7 +83,7 @@ resource "aws_lb_listener_rule" "public" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.public.arn
+    target_group_arn = aws_lb_target_group.public[0].arn
   }
 
   condition {
