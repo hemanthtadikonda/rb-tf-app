@@ -6,8 +6,8 @@ resource "aws_security_group" "main" {
 
   ingress {
     description      = "APP"
-    from_port        = var.port
-    to_port          = var.port
+    from_port        = var.app_port
+    to_port          = var.app_port
     protocol         = "tcp"
     cidr_blocks      = var.sg_ingress_cidr
   }
@@ -26,56 +26,49 @@ resource "aws_security_group" "main" {
     ipv6_cidr_blocks = ["::/0"]
   }
 }
+
 resource "aws_lb_target_group" "main" {
-  name     = "${local.name_prefix}-tg"
-  port     = var.port
+  name     = "${local.name_prefix}-sg"
+  port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
-  tags = merge( local.tags , { Name = "${local.name_prefix}-tg"} )
-  deregistration_delay = 15
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    interval            = 5
-    path                = "/health"
-    port                = var.port
-    timeout             = 2
-    unhealthy_threshold = 2
-    matcher             = "200"
-  }
 }
 
 resource "aws_lb_target_group" "public" {
   count = var.component == "frontend" ? 1 : 0
-  name     = "${local.name_prefix}-tg"
-  port     = var.port
-  protocol = "HTTP"
+  name        = "${local.name_prefix}-pub"
+  port        = 80
+  protocol    = "HTTP"
   target_type = "ip"
-  vpc_id   = var.default_vpc_id
-  tags = merge( local.tags , { Name = "${local.name_prefix}-tg"} )
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    interval            = 5
-    path                = "/"
-    port                = var.port
-    timeout             = 2
-    unhealthy_threshold = 2
-    matcher             = "404"
-  }
-}
-resource "aws_lb_target_group_attachment" "public" {
-  count             = var.component == "frontend" ? length(var.az) : 0
-  target_group_arn  = aws_lb_target_group.public[0].arn
-  target_id         = element(tolist(data.dns_a_record_set.private_alb.addrs), count.index)
-  port              = 80
-  availability_zone = "all"
+  vpc_id      = var.default_vpc_id
 }
 
+resource "aws_lb_target_group_attachment" "public" {
+  count = var.component == "frontend" ? 1 : 0
+  target_group_arn = aws_lb_target_group.public[0].arn
+  target_id        = data
+  port             = 80
+}
+
+resource "aws_route53_record" "main" {
+  zone_id = var.zone_id
+  name    = "${var.component}-${var.env}"
+  type    = "CNAME"
+  ttl     = 30
+  records = [var.private_alb_name]
+}
+resource "aws_route53_record" "public" {
+  count = var.component == "frontend" ? 1 : 0
+  zone_id = var.zone_id
+  name    = "${var.component}-${var.env}"
+  type    = "CNAME"
+  ttl     = 300
+  records = [var.public_alb_name]
+}
 
 resource "aws_lb_listener_rule" "main" {
-  listener_arn = var.listener_arn
-  priority     = var.priority
+  listener_arn = var.private_alb_listener
+  priority     = var.lb_priority
 
   action {
     type             = "forward"
@@ -89,18 +82,20 @@ resource "aws_lb_listener_rule" "main" {
   }
 }
 
-resource "aws_launch_template" "main" {
-  name = "${local.name_prefix}-template"
-  image_id = data.aws_ami.ami.id
-  instance_type = var.instance_type
-  vpc_security_group_ids = [aws_security_group.main.id]
+resource "aws_lb_listener_rule" "public" {
+  count = var.component == "frontend" ? 1 : 0
+  listener_arn = var.public_alb_listener
+  priority     = 10
 
-  user_data = filebase64(templatefile("${path.module}/example.sh", { component=var.component  }))
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.public.arn
+  }
 
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name = merge( local.tags , { Name = "${local.name_prefix}-ec2"} )
+  condition {
+    host_header {
+      values = ["${var.component}-${var.env}.tadikonda.online"]
     }
   }
 }
+

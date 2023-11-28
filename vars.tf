@@ -1,0 +1,14 @@
+variable "vpc_id" {}
+variable "ssh_ingress_cidr" {}
+variable "sg_ingress_cidr" {}
+variable "app_port" {}
+variable "env" {}
+variable "component" {}
+variable "tags" {}
+variable "default_vpc_id" {}
+variable "public_alb_name" {}
+variable "private_alb_name" {}
+variable "public_alb_listener" {}
+variable "private_alb_listener" {}
+variable "lb_priority" {}
+variable "zone_id" {}
