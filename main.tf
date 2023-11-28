@@ -101,10 +101,7 @@ resource "aws_launch_template" "main" {
 
   tag_specifications {
     resource_type = "instance"
-
-    tags = {
-      Name = merge(local.tags , {Name = "${local.name_prefix}-tem"})
-    }
+    tags = merge(local.tags , {Name = "${local.name_prefix}-tem"})
   }
 
   user_data = base64encode(templatefile("${path.module}/userdata.sh" , { component=var.component , env=var.env}))
