@@ -12,3 +12,4 @@ variable "public_alb_listener" {}
 variable "private_alb_listener" {}
 variable "lb_priority" {}
 variable "zone_id" {}
+variable "az" {}
