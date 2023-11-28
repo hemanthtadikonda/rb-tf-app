@@ -107,7 +107,7 @@ resource "aws_launch_template" "main" {
     }
   }
 
-  user_data = filebase64(templatefile("${path.module}/userdata.sh" , { component=var.component , env=var.env}))
+  user_data = base64encode(templatefile("${path.module}/userdata.sh" , { component=var.component , env=var.env}))
 }
 
 resource "aws_autoscaling_group" "bar" {
