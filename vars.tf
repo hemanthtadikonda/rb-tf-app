@@ -13,3 +13,8 @@ variable "private_alb_listener" {}
 variable "lb_priority" {}
 variable "zone_id" {}
 variable "az" {}
+variable "app_subnet_ids" {}
+variable "desired_capacity" {}
+variable "max_size" {}
+variable "min_size" {}
+variable "instance_type" {}

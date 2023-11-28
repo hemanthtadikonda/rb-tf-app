@@ -93,3 +93,39 @@ resource "aws_lb_listener_rule" "public" {
   }
 }
 
+resource "aws_launch_template" "main" {
+  name = "${local.name_prefix}-template"
+  image_id = data.aws_ami.ami.id
+  instance_type = var.instance_type
+  vpc_security_group_ids = [aws_security_group.main.id]
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = merge(local.tags , {Name = "${local.name_prefix}-tem"})
+    }
+  }
+
+  user_data = filebase64(templatefile("${path.module}/userdata.sh" , { component=var.component , env=var.env}))
+}
+
+resource "aws_autoscaling_group" "bar" {
+  name_prefix          = "${local.name_prefix}-asg"
+  vpc_zone_identifier = var.app_subnet_ids
+  desired_capacity   = var.desired_capacity
+  max_size           = var.max_size
+  min_size           = var.min_size
+  target_group_arns  = [aws_lb_target_group.main.arn]
+
+  launch_template {
+    id      = aws_launch_template.main.id
+    version = "$Latest"
+  }
+  tag {
+    key = "Name"
+    value = local.name_prefix
+    propagate_at_launch = true
+  }
+}
+
