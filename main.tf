@@ -159,7 +159,7 @@ resource "aws_launch_template" "main" {
   instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.main.id]
   iam_instance_profile {
-    name = "${local.name_prefix}-profile"
+    name = "${local.name_prefix}-role-profile"
   }
 
   tag_specifications {
