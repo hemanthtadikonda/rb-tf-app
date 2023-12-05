@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "main" {
 resource "aws_lb_target_group" "public" {
   count = var.component == "frontend" ? 1 : 0
   name        = "${local.name_prefix}-pub"
-  port        = 80
+  port        = var.app_port
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.default_vpc_id
