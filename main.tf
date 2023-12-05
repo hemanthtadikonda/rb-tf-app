@@ -148,7 +148,7 @@ resource "aws_iam_role_policy_attachment" "attach" {
 }
 
 resource "aws_iam_instance_profile" "main" {
-  name = "${local.name_prefix}-profile"
+  name = "${local.name_prefix}-role-profile"
   role = aws_iam_role.main.name
 }
 
