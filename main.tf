@@ -188,3 +188,14 @@ resource "aws_autoscaling_group" "main" {
     propagate_at_launch = true
   }
 }
+
+module "prometheus" {
+  source = "./prometheus"
+
+  count = var.component == "frontend" ? 1 : 0
+  default_vpc_id = var.default_vpc_id
+  env = var.env
+  tags =  var.tags
+}
+
+
