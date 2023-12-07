@@ -88,7 +88,6 @@ resource "aws_iam_instance_profile" "main" {
 }
 
 resource "aws_instance" "main" {
-  name = local.name_prefix
   ami           = data.aws_ami.ami.id
   instance_type = "t3.small"
   iam_instance_profile = aws_iam_instance_profile.main.name
