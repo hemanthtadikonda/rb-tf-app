@@ -23,7 +23,7 @@ resource "aws_security_group" "main" {
     from_port        = 9100
     to_port          = 9100
     protocol         = "tcp"
-    cidr_blocks      = [ "${local.ip}/32"]
+    cidr_blocks      = local.ip
   }
   egress {
     from_port        = 0
