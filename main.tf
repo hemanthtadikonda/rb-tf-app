@@ -23,7 +23,7 @@ resource "aws_security_group" "main" {
     from_port        = 9100
     to_port          = 9100
     protocol         = "tcp"
-    cidr_blocks      = [module.prometheus]
+    cidr_blocks      = try(module.prometheus["prometheus_ip"], 0)
   }
   egress {
     from_port        = 0
