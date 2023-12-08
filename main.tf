@@ -19,9 +19,9 @@ resource "aws_security_group" "main" {
     cidr_blocks      = var.ssh_ingress_cidr
   }
   ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
+    description      = "PROMETHEUS"
+    from_port        = 9100
+    to_port          = 9100
     protocol         = "tcp"
     cidr_blocks      = local.ip
   }
