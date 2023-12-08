@@ -12,6 +12,20 @@ resource "aws_security_group" "main" {
     cidr_blocks = [ "0.0.0.0/0" ]
   }
   ingress {
+    description = "prometheus-node-exporter"
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+  ingress {
+    description = "Grafana"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+  ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
