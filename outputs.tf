@@ -1,3 +1,5 @@
+
+
 output "prometheus" {
-  value = local.ip
+  value = module.prometheus
 }
