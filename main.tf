@@ -194,6 +194,12 @@ resource "aws_lb_listener_rule" "public" {
 #    value = local.name_prefix
 #    propagate_at_launch = true
 #  }
+#  tag {
+#    key = "Monitor"
+#    value = "yes"
+#    propagate_at_launch = true
+#  }
+#
 #}
 
 module "prometheus" {
