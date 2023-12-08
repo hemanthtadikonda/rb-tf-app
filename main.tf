@@ -23,7 +23,7 @@ resource "aws_security_group" "main" {
     from_port        = 9100
     to_port          = 9100
     protocol         = "tcp"
-    cidr_blocks      = var.default_vpc_cidr_block
+    cidr_blocks      = [var.default_vpc_cidr_block]
   }
   egress {
     from_port        = 0
