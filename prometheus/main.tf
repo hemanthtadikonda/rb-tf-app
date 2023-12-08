@@ -5,9 +5,16 @@ resource "aws_security_group" "main" {
   tags = merge(local.tags ,{Name ="${local.name_prefix}-sg"})
 
   ingress {
-    description = "ALLOW ALL"
-    from_port   = "9090"
-    to_port     = "9090"
+    description = "prometheus"
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [ "0.0.0.0/0" ]
   }
