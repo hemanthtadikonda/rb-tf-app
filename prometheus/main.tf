@@ -113,6 +113,7 @@ resource "aws_instance" "main" {
   instance_type = "t3.small"
   iam_instance_profile = aws_iam_instance_profile.main.name
   vpc_security_group_ids = [aws_security_group.main.id]
+  user_data = file("${path.module}/userdata.sh")
   tags = merge(local.tags ,{Name =local.name_prefix })
 
 }
