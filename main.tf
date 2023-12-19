@@ -181,42 +181,42 @@ resource "aws_iam_instance_profile" "main" {
 
 
 resource "aws_launch_template" "main" {
-  name = "${local.name_prefix}-template"
-  image_id = data.aws_ami.ami.id
-  instance_type = var.instance_type
-  vpc_security_group_ids = [aws_security_group.main.id]
+  name                   = "${local.name_prefix}-template"
+  image_id               = data.aws_ami.ami.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [ aws_security_group.main.id ]
   iam_instance_profile {
     name = "${local.name_prefix}-role-profile"
   }
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(local.tags , {Name = "${local.name_prefix}-tem"})
+    tags          = merge(local.tags,{ Name = "${local.name_prefix}-tem" })
   }
 
-  user_data = base64encode(templatefile("${path.module}/userdata.sh" , { component=var.component , env=var.env}))
+  user_data = base64encode(templatefile("${path.module}/userdata.sh",{ component = var.component,env = var.env }))
 }
 
 resource "aws_autoscaling_group" "main" {
-  name_prefix          = "${local.name_prefix}-asg"
+  name_prefix         = "${local.name_prefix}-asg"
   vpc_zone_identifier = var.app_subnet_ids
-  desired_capacity   = var.desired_capacity
-  max_size           = var.max_size
-  min_size           = var.min_size
-  target_group_arns  = [aws_lb_target_group.main.arn]
+  desired_capacity    = var.desired_capacity
+  max_size            = var.max_size
+  min_size            = var.min_size
+  target_group_arns   = [ aws_lb_target_group.main.arn ]
 
   launch_template {
     id      = aws_launch_template.main.id
     version = "$Latest"
   }
   tag {
-    key = "Name"
-    value = local.name_prefix
+    key                 = "Name"
+    value               = local.name_prefix
     propagate_at_launch = true
   }
   tag {
-    key = "Monitor"
-    value = "yes"
+    key                 = "Monitor"
+    value               = "yes"
     propagate_at_launch = true
   }
 
